@@ -4,7 +4,7 @@ import src.AddressableLED;
 import src.AddressableLEDBuffer;
 import src.Color;
 
-class Playground {
+class Rainbow {
   static AddressableLED led;
   static AddressableLEDBuffer ledBuffer;
   static float rainbowHue = 0.0f;
