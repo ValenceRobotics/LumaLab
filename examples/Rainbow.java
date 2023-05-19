@@ -10,7 +10,6 @@ class Rainbow {
   static float rainbowHue = 0.0f;
 
   public static float HUE_DIFFERENCE = 0.01f;
-  // public s
 
   public static void main(String[] args) {
     led = new AddressableLED(1);
