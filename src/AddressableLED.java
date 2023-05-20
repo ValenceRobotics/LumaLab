@@ -3,6 +3,7 @@ package src;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -10,32 +11,55 @@ import java.awt.Toolkit;
 
 public class AddressableLED {
   private JFrame frame;
+  private JPanel contentPane;
+  public int ledSize;
+  Dimension screenSize;
 
   public AddressableLED(int port) {
+
+    Toolkit toolkit = Toolkit.getDefaultToolkit();
+    screenSize = toolkit.getScreenSize();
     // port is a placeholder
     frame = new JFrame("Addressable LED");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    Toolkit toolkit = Toolkit.getDefaultToolkit();
-    Dimension screenSize = toolkit.getScreenSize();
-    frame.setPreferredSize(new Dimension(screenSize.width, 50));
-    frame.pack();
+
+    contentPane = new JPanel();
+    contentPane.setLayout(new BorderLayout(0, 0));
+    frame.setContentPane(contentPane);
+
+    LEDPanel panel = new LEDPanel(new AddressableLEDBuffer(100)); // create a new LEDPanel object and add
+                                                                  // it to the
+    // content pane
+    contentPane.add(panel);
+    frame.setSize(screenSize);
+
+    frame.pack(); // pack the frame after adding the panel to the content pane
+
     frame.setVisible(true);
 
   }
 
   public void setData(AddressableLEDBuffer buffer) {
-    frame.getContentPane().removeAll();
-    LEDPanel panel = new LEDPanel(buffer);
-    frame.getContentPane().add(panel);
-    frame.revalidate();
-    frame.repaint();
+    LEDPanel panel = (LEDPanel) contentPane.getComponent(0); // get the existing LEDPanel object
+
+    panel.setBuffer(buffer); // update the LEDPanel with the new AddressableLEDBuffer object
+
+    panel.repaint(); // repaint the panel only
+    // int width = screenSize.width / 2;
+    // int height = width / panel.buffer.getLength();
+
+    frame.pack(); // pack the frame after updating the panel
+
   }
 
   class LEDPanel extends JPanel {
     private AddressableLEDBuffer buffer;
-    public int ledSize;
 
     public LEDPanel(AddressableLEDBuffer buffer) {
+      this.buffer = buffer;
+    }
+
+    public void setBuffer(AddressableLEDBuffer buffer) {
       this.buffer = buffer;
     }
 
@@ -44,11 +68,12 @@ public class AddressableLED {
       super.paintComponent(g);
       Graphics2D g2d = (Graphics2D) g;
 
-      ledSize = Math.max(1, frame.getWidth() / buffer.getLength());
+      ledSize = Math.max(1, screenSize.width / buffer.getLength());
       int bufferLength = buffer.getLength();
       int panelWidth = bufferLength * ledSize;
-      setPreferredSize(new Dimension(panelWidth, ledSize));
-      frame.pack();
+      Dimension preferredSize = new Dimension(panelWidth, ledSize);
+      // System.out.println(preferredSize);
+      setPreferredSize(preferredSize);
 
       for (int i = 0; i < bufferLength; i++) {
         Color ledColor = buffer.getLED(i);
@@ -62,6 +87,9 @@ public class AddressableLED {
         g2d.setColor(awtColor);
         g2d.fillRect(x, y, ledSize, ledSize);
       }
+
+      // repack
+      frame.pack();
     }
   }
 }
